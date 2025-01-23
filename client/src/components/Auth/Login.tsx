@@ -5,12 +5,8 @@ import { LoaderIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MicrosoftLogo from '../svg/MicrosoftLogo';
+import { loginRequest } from '../authTemp/config';
 
-export const loginRequest = {
-  scopes: ['User.Read'],
-};
-
-// TODO: style and more
 function Login() {
   const [isLoadingSilentCredentials, setIsLoadingSilentCredentials] = useState(false);
   const { instance, accounts } = useMsal();
