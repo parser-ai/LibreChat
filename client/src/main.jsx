@@ -3,7 +3,7 @@ import { MsalProvider } from '@azure/msal-react';
 import { createRoot } from 'react-dom/client';
 import 'regenerator-runtime/runtime';
 import App from './App';
-import { msalConfig } from './components/authTemp/config';
+import { msalConfig } from './components/Auth/config';
 import { ApiErrorBoundaryProvider } from './hooks/ApiErrorBoundaryContext';
 import './mobile.css';
 import './style.css';

@@ -1,3 +1,4 @@
+import { useMsal } from '@azure/msal-react';
 import { RecoilRoot } from 'recoil';
 import { DndProvider } from 'react-dnd';
 import { RouterProvider } from 'react-router-dom';
@@ -10,9 +11,21 @@ import { ToastProvider } from './Providers';
 import Toast from './components/ui/Toast';
 import { LiveAnnouncer } from '~/a11y';
 import { router } from './routes';
+import { useEffect } from 'react';
 
 const App = () => {
+  const { instance } = useMsal();
   const { setError } = useApiErrorBoundary();
+
+  useEffect(() => {
+    const handleMsalRedirect = () => {
+      instance.handleRedirectPromise();
+    };
+
+    if (instance) {
+      handleMsalRedirect();
+    }
+  }, [instance]);
 
   const queryClient = new QueryClient({
     queryCache: new QueryCache({

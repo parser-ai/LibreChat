@@ -1,11 +1,10 @@
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
-import { signInWithRedirect } from 'aws-amplify/auth';
 import { LoaderIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MicrosoftLogo from '../svg/MicrosoftLogo';
-import { loginRequest } from '../authTemp/config';
+import { loginRequest } from './config';
 
 function Login() {
   const [isLoadingSilentCredentials, setIsLoadingSilentCredentials] = useState(false);
@@ -21,18 +20,6 @@ function Login() {
       setIsLoadingSilentCredentials(true);
 
       try {
-        const result = await instance.acquireTokenSilent({
-          account: accounts[0],
-          ...loginRequest,
-        });
-
-        // Use Amplify to sign in with the Azure token
-        await signInWithRedirect({
-          provider: {
-            custom: process.env.REACT_APP_AZURE_PROVIDER_NAME!
-          },
-          customState: result.idToken,
-        });
         navigate('/');
       } catch (error) {
         if (error instanceof InteractionRequiredAuthError) {
