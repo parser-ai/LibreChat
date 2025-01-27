@@ -7,9 +7,9 @@ import MicrosoftLogo from '../svg/MicrosoftLogo';
 import { loginRequest } from './config';
 
 function Login() {
-  const [isLoadingSilentCredentials, setIsLoadingSilentCredentials] = useState(false);
-  const { instance, accounts } = useMsal();
   const navigate = useNavigate();
+  const { instance, accounts } = useMsal();
+  const [isLoadingSilentCredentials, setIsLoadingSilentCredentials] = useState(false);
 
   const handleLoginRequest = () => {
     instance.loginRedirect(loginRequest);
@@ -18,8 +18,13 @@ function Login() {
   const handleLogin = async () => {
     if (accounts?.length) {
       setIsLoadingSilentCredentials(true);
-
       try {
+        await instance.acquireTokenSilent({
+          account: accounts[0],
+          ...loginRequest,
+        });
+
+        // Redirect to the main app page
         navigate('/');
       } catch (error) {
         if (error instanceof InteractionRequiredAuthError) {
@@ -34,7 +39,6 @@ function Login() {
       handleLoginRequest();
     }
   };
-
   return (
     <button
       className="
