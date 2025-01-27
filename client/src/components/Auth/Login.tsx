@@ -53,7 +53,7 @@ function Login() {
       ) : (
         <>
           <MicrosoftLogo className="w-6 h-6 mr-2" />
-          Login with Microsoft
+          <span>Login with Microsoft</span>
         </>
       )}
     </button>
