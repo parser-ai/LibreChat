@@ -7,7 +7,7 @@ import { msalConfig } from './components/Auth/config';
 import { ApiErrorBoundaryProvider } from './hooks/ApiErrorBoundaryContext';
 import './mobile.css';
 import './style.css';
-import MSALTest from './components/Auth/TEMP_MSAL_TEST';
+import MSALHandler from './components/Auth/MSALHandler';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -18,7 +18,7 @@ msalInstance.initialize();
 root.render(
   <ApiErrorBoundaryProvider>
     <MsalProvider instance={msalInstance}>
-      <MSALTest />
+      <MSALHandler />
       <App />
     </MsalProvider>
   </ApiErrorBoundaryProvider>,

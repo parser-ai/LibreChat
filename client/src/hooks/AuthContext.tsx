@@ -143,22 +143,6 @@ const AuthContextProvider = ({
   }, []);
 
   useEffect(() => {
-    const accounts = instance.getAllAccounts();
-    console.log('MSAL Accounts:', accounts);
-
-    if (accounts.length > 0 && !instance.getActiveAccount()) {
-      console.log('Setting active account:', accounts[0]);
-      instance.setActiveAccount(accounts[0]);
-    }
-
-    // Avoid infinite loop by only running silent refresh if necessary
-    if (!token && !isAuthenticated) {
-      console.warn('No token found, attempting silent refresh...');
-      silentRefresh();
-    }
-  }, [token, isAuthenticated]);
-
-  useEffect(() => {
     const handleTokenUpdate = (event) => {
       console.log('tokenUpdated event received event');
       const newToken = event.detail;
