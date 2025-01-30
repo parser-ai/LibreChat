@@ -9,17 +9,21 @@ import './mobile.css';
 import './style.css';
 import MSALHandler from './components/Auth/MSALHandler';
 
-const container = document.getElementById('root');
-const root = createRoot(container);
+async function initializeMSAL() {
+  const msalInstance = new PublicClientApplication(msalConfig);
+  await msalInstance.initialize();
 
-const msalInstance = new PublicClientApplication(msalConfig);
-msalInstance.initialize();
+  const container = document.getElementById('root');
+  const root = createRoot(container);
 
-root.render(
-  <ApiErrorBoundaryProvider>
-    <MsalProvider instance={msalInstance}>
-      <MSALHandler />
-      <App />
-    </MsalProvider>
-  </ApiErrorBoundaryProvider>,
-);
+  root.render(
+    <ApiErrorBoundaryProvider>
+      <MsalProvider instance={msalInstance}>
+        <MSALHandler />
+        <App />
+      </MsalProvider>
+    </ApiErrorBoundaryProvider>
+  );
+}
+
+initializeMSAL().catch(console.error);
