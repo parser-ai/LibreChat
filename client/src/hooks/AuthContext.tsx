@@ -16,6 +16,8 @@ import { useLoginUserMutation, useLogoutUserMutation, useGetRole } from '~/data-
 import { TAuthConfig, TUserContext, TAuthContext, TResError } from '~/common';
 import useTimeout from './useTimeout';
 import store from '~/store';
+import { useMsal } from '@azure/msal-react';
+import { loginRequest } from '~/components/Auth/config';
 
 const AuthContext = createContext<TAuthContext | undefined>(undefined);
 
@@ -81,6 +83,7 @@ const AuthContextProvider = ({
   const logout = useCallback(() => logoutUser.mutate(undefined), [logoutUser]);
   const userQuery = useGetUserQuery({ enabled: !!(token ?? '') });
   const refreshToken = useRefreshTokenMutation();
+  const { instance, accounts } = useMsal();
 
   const login = (data: TLoginUser) => {
     loginUser.mutate(data, {
@@ -102,54 +105,58 @@ const AuthContextProvider = ({
       console.log('Test mode. Skipping silent refresh.');
       return;
     }
+
+    // Avoid infinite loops by checking if a refresh is already happening
+    if (window.localStorage.getItem('msal_silent_refresh')) {
+      console.warn('Silent refresh already in progress. Skipping...');
+      return;
+    }
+
+    console.log('Attempting silent refresh...');
+    window.localStorage.setItem('msal_silent_refresh', 'true'); // Mark refresh attempt
+
     refreshToken.mutate(undefined, {
       onSuccess: (data: TLoginResponse | undefined) => {
         const { user, token = '' } = data ?? {};
+
         if (token) {
           setUserContext({ token, isAuthenticated: true, user });
         } else {
           console.log('Token is not present. User is not authenticated.');
-          if (authConfig?.test === true) {
-            return;
+          if (!instance.getActiveAccount()) {
+            console.log('No active MSAL account, forcing login...');
+            instance.loginRedirect(loginRequest);
           }
-          navigate('/login');
         }
       },
       onError: (error) => {
         console.log('refreshToken mutation error:', error);
-        if (authConfig?.test === true) {
-          return;
+        if (!instance.getActiveAccount()) {
+          console.warn('No active MSAL session, redirecting to login...');
+          instance.loginRedirect(loginRequest);
         }
-        navigate('/login');
+      },
+      onSettled: () => {
+        window.localStorage.removeItem('msal_silent_refresh'); // Remove flag after refresh attempt
       },
     });
   }, []);
 
   useEffect(() => {
-    if (userQuery.data) {
-      setUser(userQuery.data);
-    } else if (userQuery.isError) {
-      doSetError((userQuery.error as Error).message);
-      navigate('/login', { replace: true });
+    const accounts = instance.getAllAccounts();
+    console.log('MSAL Accounts:', accounts);
+
+    if (accounts.length > 0 && !instance.getActiveAccount()) {
+      console.log('Setting active account:', accounts[0]);
+      instance.setActiveAccount(accounts[0]);
     }
-    if (error != null && error && isAuthenticated) {
-      doSetError(undefined);
-    }
-    if (token == null || !token || !isAuthenticated) {
+
+    // Avoid infinite loop by only running silent refresh if necessary
+    if (!token && !isAuthenticated) {
+      console.warn('No token found, attempting silent refresh...');
       silentRefresh();
     }
-  }, [
-    token,
-    isAuthenticated,
-    userQuery.data,
-    userQuery.isError,
-    userQuery.error,
-    error,
-    setUser,
-    navigate,
-    silentRefresh,
-    setUserContext,
-  ]);
+  }, [token, isAuthenticated]);
 
   useEffect(() => {
     const handleTokenUpdate = (event) => {
