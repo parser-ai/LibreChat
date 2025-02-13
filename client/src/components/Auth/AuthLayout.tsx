@@ -7,6 +7,8 @@ import { Banner } from '../Banners';
 import Footer from './Footer';
 import ParserFullLogoIcon from '../svg/ParserFullLogo';
 
+const isLocalMode = window.location.hostname === 'localhost';
+
 const ErrorRender = ({ children }: { children: React.ReactNode }) => (
   <div className="mt-16 flex justify-center">
     <div
@@ -57,6 +59,24 @@ function AuthLayout({
     }
     return null;
   };
+
+  if (isLocalMode) {
+    return (
+      <div className="relative flex min-h-screen flex-col bg-white dark:bg-gray-900">
+        <div className="flex flex-grow items-center justify-center">
+          <div className="w-authPageWidth overflow-hidden bg-white px-6 py-4 dark:bg-gray-900 sm:max-w-md sm:rounded-lg">
+            <h1 className="mb-4 text-center text-3xl font-semibold text-black dark:text-white">
+              Local Mode Enabled
+            </h1>
+            <p className="text-center text-gray-600 dark:text-gray-300">
+              Use <strong>parser@user.com</strong> / <strong>testpass</strong> to log in.
+            </p>
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen flex-col bg-white dark:bg-gray-900">
