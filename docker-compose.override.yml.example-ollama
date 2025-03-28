@@ -1,0 +1,19 @@
+services:
+  api:
+    volumes:
+      - type: bind
+        source: ./librechat.yaml
+        target: /app/librechat.yaml
+  ollama:
+    container_name: ollama
+    pull_policy: always
+    build:
+      context: .
+      dockerfile: ollama.dockerfile
+    volumes:
+      - ./ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: always
+    environment:
+      - OLLAMA_DEBUG=1
